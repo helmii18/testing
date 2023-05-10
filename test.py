@@ -1,12 +1,18 @@
-import ast
+import ast as ast
 
-# Define the function to detect bugs
-def detect_bugs(x):
+def detect_bugs():
+    # Read the code file
+    with open('C:\\Users\\Administrator\\PycharmProjects\\pythonProject\\p2.py', 'r') as file:
+        x = file.read()
+
     # Parse the code string into an AST
     try:
-        module = ast.parse(ast.NodeVisitor(x))
+        module = ast.parse(x)
     except SyntaxError as e:
         return f"Syntax error: {e}"
+
+
+
 
     # Check for bugs in the AST
     bugs = []
@@ -14,7 +20,7 @@ def detect_bugs(x):
     # Bug 1: Check for undefined variables
     for node in ast.walk(module):
         if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
-            if not any(isinstance(parent, ast.FunctionDef) for parent in ast.iter_parent_nodes(node)):
+            if not any(isinstance(parent, ast.FunctionDef) for parent in ast.iter_child_nodes(node)):
                 bugs.append(f"Undefined variable: {node.id}")
 
     # Bug 2: Check for unreachable code
@@ -33,7 +39,7 @@ def detect_bugs(x):
     for node in ast.walk(module):
         if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store):
             if not any(isinstance(parent, (ast.Assign, ast.FunctionDef, ast.arg)) for parent in
-                       ast.iter_parent_nodes(node)):
+                       ast.iter_child_nodes(node)):
                 bugs.append(f"Unused variable: {node.id}")
 
     # Bug 5: Check for incorrect function signatures
@@ -171,4 +177,5 @@ def detect_bugs(x):
 
 
     return bugs
-
+if __name__ == '__main__':
+    print(detect_bugs())
